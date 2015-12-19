@@ -1,1 +1,1 @@
-from cuepy.cosairlib import CorsairSDK, Device
+from cuepy.cuepy import CorsairSDK, Device
