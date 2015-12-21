@@ -75,7 +75,6 @@ def set_leds_color(dll, color_struct, amount=1):
     return result
 
 
-
 def request_control(dll, access_mode):
     func = dll["CorsairRequestControl"]
     func.restype = c_bool
