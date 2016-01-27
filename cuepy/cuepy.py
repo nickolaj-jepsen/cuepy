@@ -1,5 +1,5 @@
-from ctypes import WinDLL
-
+from ctypes import windll, CDLL, cdll, c_void_p
+from _ctypes import FreeLibrary
 from cuepy.calls import perform_protocol_handshake, get_device_count, get_device_info, get_led_positions, \
     get_led_id_for_key_name, set_leds_color, request_control, get_last_error
 from cuepy.exceptions import error_id
@@ -12,7 +12,7 @@ class CorsairSDK(object):
     Class that represents an SDK connection
     """
 
-    def __init__(self, corsair_sdk_dll_path):
+    def __init__(self, corsair_sdk_dll_path=None):
         """
         Create a new SDK object and perform the protocol handshake
 
@@ -20,7 +20,7 @@ class CorsairSDK(object):
         :type corsair_sdk_dll_path: str
         """
         self._corsair_sdk_path = corsair_sdk_dll_path
-        self.corsair_sdk = WinDLL(corsair_sdk_dll_path)
+        self.corsair_sdk = cdll.LoadLibrary(corsair_sdk_dll_path)
         self._perform_protocol_handshake()
 
     def _raise_corsair_error(self, error=None, message=""):
@@ -114,7 +114,14 @@ class CorsairSDK(object):
                 self._raise_corsair_error()
             return True
         else:
-            raise NotImplementedError
+            self.reload()
+
+    def reload(self):
+        handle = self.corsair_sdk._handle
+        del self.corsair_sdk
+        FreeLibrary(handle)
+        self.corsair_sdk = cdll.LoadLibrary(self._corsair_sdk_path)
+        self._perform_protocol_handshake()
 
     def last_error(self):
         """
@@ -147,14 +154,14 @@ class CorsairSDK(object):
         :returns: Device object
         :rtype: Device
         """
-        return Device(device_id, self._corsair_sdk_path, *args, **kwargs)
+        return Device(device_id, self.corsair_sdk, self._corsair_sdk_path, *args, **kwargs)
 
 
 class Device(CorsairSDK):
     """
     Class that represents a device
     """
-    def __init__(self, device_id, corsair_sdk_dll_path, control=False):
+    def __init__(self, device_id, sdk, sdk_path, control=False):
         """
         Create a new device object and check if it exists
 
@@ -165,7 +172,11 @@ class Device(CorsairSDK):
         :param control: whether to request exclusive access or not
         :type control: bool
         """
-        super(Device, self).__init__(corsair_sdk_dll_path)
+
+        self.corsair_sdk = sdk
+        self._corsair_sdk_path = sdk_path
+        self._perform_protocol_handshake()
+
         self.device_id = device_id
         # Check if device exists
         self.device_info()
