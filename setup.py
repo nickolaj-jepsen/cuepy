@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='cuepy',
     packages=['cuepy'],
-    version='0.1.2',
+    version='0.2.0',
     description='Python wrapper for the corsair utility engine',
     author='Nickolaj Jepsen',
     author_email='nickolaj1177@gmail.com',
