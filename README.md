@@ -6,6 +6,8 @@ This is a prerelease, the api will probably change.
 
 Furthermore, i have only tested this on Windows 10 x64 with my Corsair k70 RGB nordic, so there might be compatibility issues
 
+Only tested on Python > 3.4
+
 ## Documentation
 
 ###Install
